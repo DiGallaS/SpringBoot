@@ -13,6 +13,9 @@ import org.testcontainers.junit.jupiter.Container;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class ApplicationTests {
 
+    private static final String HOST = "http://localhost:";
+    private static final int PORT_DEV = 8080;
+    private static final int PORT_PROD = 8081;
     private static final String ENDPOINT = "/profile";
 
     @Autowired
@@ -20,10 +23,10 @@ class ApplicationTests {
 
 
     private static final GenericContainer<?> devapp = new GenericContainer<>("devapp")
-            .withExposedPorts(8080);
+            .withExposedPorts(PORT_DEV);
 
     private static final GenericContainer<?> prodapp = new GenericContainer<>("prodapp")
-            .withExposedPorts(8081);
+            .withExposedPorts(PORT_PROD);
 
     @BeforeAll
     public static void setUp() {
@@ -34,11 +37,11 @@ class ApplicationTests {
 
     @Test
     void contextLoads() {
-        ResponseEntity<String> forDev = restTemplate.getForEntity("http://localhost:"+ devapp.getMappedPort(8080) + "/profile", String.class);
+        ResponseEntity<String> forDev = restTemplate.getForEntity(HOST + devapp.getMappedPort(PORT_DEV) + ENDPOINT, String.class);
         System.out.println(forDev.getBody());
         Assertions.assertEquals("Current profile is dev", forDev.getBody());
 
-        ResponseEntity<String> prod = restTemplate.getForEntity("http://localhost:" + prodapp.getMappedPort(8081) + "/profile", String.class);
+        ResponseEntity<String> prod = restTemplate.getForEntity(HOST + prodapp.getMappedPort(PORT_PROD) + ENDPOINT, String.class);
         System.out.println(prod.getBody());
         Assertions.assertEquals("Current profile is production", prod.getBody());
     }
